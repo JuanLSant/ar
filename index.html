@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Ar test</title>
+  
+  <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.7/aframe/build/aframe-ar.js"></script>
+  
+  <script>
+    AFRAME.registerComponent('confetti-generator', {
+      schema: { interval: { type: 'number', default: 5000 } },
+      init: function () {
+        this.generateConfetti = this.generateConfetti.bind(this);
+        this.clearConfetti = this.clearConfetti.bind(this);
+        this.generateConfetti();
+        this.intervalId = setInterval(() => {
+          this.clearConfetti();
+          this.generateConfetti();
+        }, this.data.interval);
+      },
+      remove: function () { clearInterval(this.intervalId); },
+      clearConfetti: function () { while (this.el.firstChild) { this.el.removeChild(this.el.firstChild); } },
+      generateConfetti: function () {
+        const colors = ['#FF0000', '#FFFF00', '#00FF00', '#00FFFF', '#FF00FF', '#FFD700', '#FF69B4', '#FFA500'];
+        const numConfetti = 120;
+        const container = this.el;
+        for (let i = 0; i < numConfetti; i++) {
+          const confetti = document.createElement('a-plane');
+          confetti.setAttribute('width', 0.06 + Math.random() * 0.14);
+          confetti.setAttribute('height', 0.06 + Math.random() * 0.14);
+          confetti.setAttribute('color', colors[Math.floor(Math.random() * colors.length)]);
+          const startX = (Math.random() - 0.5) * 1.5;
+          const startZ = (Math.random() - 0.5) * 1.5;
+          confetti.setAttribute('position', { x: startX, y: 0.3 + Math.random() * 0.8, z: startZ });
+          confetti.setAttribute('rotation', { x: Math.random() * 360, y: Math.random() * 360, z: Math.random() * 360 });
+          confetti.setAttribute('animation__rise', { property: 'position', dur: 600 + Math.random() * 800, easing: 'easeOutQuad', to: { x: startX + (Math.random() - 0.5) * 5, y: 3 + Math.random() * 2, z: startZ + (Math.random() - 0.5) * 5 } });
+          confetti.setAttribute('animation__fall', { property: 'position', dur: 2500 + Math.random() * 1500, delay: 800 + Math.random() * 600, easing: 'easeInQuad', to: { x: startX + (Math.random() - 0.5) * 8, y: -3, z: startZ + (Math.random() - 0.5) * 8 } });
+          confetti.setAttribute('animation__spin', { property: 'rotation', to: '0 0 7200', dur: 3000 + Math.random() * 4000, easing: 'linear', loop: true });
+          confetti.setAttribute('animation__fade', { property: 'material.opacity', from: 1, to: 0, dur: 3500, delay: 1500 + Math.random() * 2000, easing: 'easeInQuad' });
+          container.appendChild(confetti);
+        }
+      }
+    });
+  </script>
+</head>
+
+<body style="margin:0; overflow:hidden; background:#000;">
+  
+  <a-scene 
+    vr-mode-ui="enabled: false"
+    embedded
+    style="background: transparent;"
+    renderer="antialias: true; alpha: true; logarithmicDepthBuffer: true;"
+    arjs="sourceType: webcam; debugUIEnabled: true; detectionMode: mono; trackingMethod: best;"
+  >
+    
+    <a-marker type="pattern" url="./pattern-LAINEZ.patt">
+      
+      <a-entity confetti-generator="interval: 5000" position="0 0.5 0"></a-entity>
+    
+        
+        <!-- Imagen con depuración -->
+        <a-image 
+          id="my-image"
+          width="2.2" 
+          height="2.2"  
+          position="0 0 0.01"
+          material="shader: flat; transparent: true; opacity: 1;"  
+          crossorigin="anonymous"
+        ></a-image>
+        
+      </a-entity>
+      
+    </a-marker>
+    
+    <a-entity camera></a-entity>
+    
+  </a-scene>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const imageUrl = "./reec.jpg";  
+ 
+      const imgElement = document.querySelector('#my-image');
+      
+      if (imgElement) {
+        console.log('Intentando cargar imagen desde:', imageUrl);
+        imgElement.setAttribute('src', imageUrl);
+        
+        imgElement.addEventListener('loaded', () => {
+          console.log('¡Éxito! Imagen cargada correctamente.');
+        });
+        
+        imgElement.addEventListener('error', (e) => {
+          console.error('Error al cargar la imagen:', e);
+        });
+      }
+    });
+  </script>
+  
+</body>
+</html>
